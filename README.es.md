@@ -57,6 +57,7 @@ Si utilizas la versión empaquetada para Windows, abre `release/windows/3D Enhan
 4. Elige **GPT Image 2** o **GPT Image 2.5 (Sunburst)** en **Modelo de imagen**, justo debajo del directorio de salida.
 5. Opcionalmente abre **Ajustes avanzados** para cambiar el número de imágenes simultáneas o el prompt.
 6. Pulsa **Procesar imágenes**.
+7. Pulsa la previsualización del original o del resultado para inspeccionar la imagen en el [visor antes y después](#visor-antes-y-después). Puedes abrirlo mientras continúa el procesado.
 
 Estos pasos utilizan las etiquetas de la interfaz en español. Para las etiquetas en inglés, consulta el [README en inglés](README.md).
 
@@ -106,11 +107,14 @@ Con **Guardar junto a cada imagen de entrada**, los resultados existentes se com
 
 Pulsa una previsualización cargada o **Abrir visor** para abrir el comparador sobre la aplicación. También puedes enfocarla con el teclado y pulsar **Intro** o **Espacio**. El visor muestra el original y su resultado alineados, y permite alternar entre **Original**, **Comparar** y **Resultado**.
 
+En el modo **Comparar**, el original aparece a la izquierda y el resultado a la derecha. El zoom y el desplazamiento mueven ambas imágenes a la vez para comparar el mismo detalle con una ampliación de hasta el **800%**.
+
 | Acción | Control |
 | --- | --- |
 | Revelar el antes y el después | Arrastra la división sobre la imagen o el deslizador inferior. |
+| Ajustar la comparación con el teclado | Enfoca el deslizador y usa las flechas; **Inicio** y **Fin** lo llevan a cada extremo. |
 | Centrar la división | Pulsa **50 / 50**. |
-| Ampliar un detalle | Usa la rueda sobre ese punto, o los botones **+** y **−**. |
+| Ampliar un detalle | Usa la rueda sobre ese punto, los botones **+** y **−**, o las teclas **+** / **−**. |
 | Desplazarte por la imagen ampliada | Arrastra la imagen; sobre la división, mantén **Espacio** o usa el botón central del ratón. |
 | Ajustar la imagen al visor | Pulsa **Ajustar** o **0**. |
 | Ver al 100% | Pulsa **100%** o **1**; el doble clic alterna entre 100% y ajustar. |
@@ -136,6 +140,8 @@ python -m compileall -q main.py renderhuman tests
 Las pruebas usan un cliente falso y no realizan peticiones externas. Cubren ambos modelos, el envío del modelo seleccionado a la API de imágenes, el guardado y la recuperación de la selección y la desactivación del selector durante el procesado, además del tratamiento de imágenes, las credenciales y el procesado paralelo.
 
 Las pruebas de idioma también cubren la detección del idioma del sistema, las variantes regionales, el inglés como alternativa, el cambio al vuelo durante el procesado, la preferencia guardada y la traducción del progreso, los diálogos y el registro sin alterar los datos del usuario.
+
+Las pruebas del visor cubren la división visual del antes/después, los controles sincronizados, el zoom centrado en el puntero, los límites del desplazamiento, la pantalla completa, los atajos de teclado, la orientación EXIF, los archivos ilegibles y la llegada de resultados con el visor abierto.
 
 ## Notas técnicas
 

@@ -57,6 +57,7 @@ If you use the packaged Windows version, open `release/windows/3D Enhancer.exe`.
 4. Choose **GPT Image 2** or **GPT Image 2.5 (Sunburst)** in **Image model**, directly below the output directory.
 5. Optionally open **Advanced settings** to change the number of simultaneous images or the prompt.
 6. Press **Process images**.
+7. Click the original or result preview to inspect the image in the [before and after viewer](#before-and-after-viewer). You can open it while processing continues.
 
 These steps use the labels shown in the English interface. For the Spanish labels, see the [Spanish README](README.es.md).
 
@@ -106,11 +107,14 @@ With **Save next to each input image** enabled, existing results are checked in 
 
 Click a loaded preview or **Open viewer** to open the comparison above the application. You can also focus the preview with the keyboard and press **Enter** or **Space**. The viewer keeps the original and its result aligned, with **Original**, **Compare**, and **Result** modes.
 
+In **Compare** mode, the original appears on the left and the result on the right. Zoom and panning move both images together, so you can compare the same detail at up to **800%** magnification.
+
 | Action | Control |
 | --- | --- |
 | Reveal before and after | Drag the divider on the image or the slider below it. |
+| Adjust the comparison with the keyboard | Focus the slider and use the arrow keys; **Home** and **End** move it to either edge. |
 | Center the divider | Click **50 / 50**. |
-| Zoom into a detail | Scroll over that point, or use the **+** and **−** buttons. |
+| Zoom into a detail | Scroll over that point, use the **+** and **−** buttons, or press **+** / **−**. |
 | Pan a zoomed image | Drag the image; over the divider, hold **Space** or use the middle mouse button. |
 | Fit the image to the viewer | Click **Fit** or press **0**. |
 | View at 100% | Click **100%** or press **1**; double-click to toggle between 100% and fit. |
@@ -136,6 +140,8 @@ python -m compileall -q main.py renderhuman tests
 The tests use a fake client and make no external requests. They cover both models, forwarding the selected model to the image API, saving and restoring the selection, and disabling the selector during processing, as well as image handling, credentials, and parallel processing.
 
 Language tests also cover system language detection, regional variants, the English fallback, live switching during processing, the saved preference, and translation of progress, dialogs, and logs without changing user data.
+
+Viewer tests cover the rendered before/after split, synchronized controls, zoom centered on the pointer, panning limits, full screen, keyboard shortcuts, EXIF orientation, unreadable files, and results arriving while the viewer is open.
 
 ## Technical notes
 
