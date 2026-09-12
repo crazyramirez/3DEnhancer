@@ -109,7 +109,19 @@ chmod +x build_macos.command
 ./build_macos.command
 ```
 
-Result: `release/macos/3D Enhancer.app`. The generated application carries no Apple signature; to distribute it outside your own machine it must be signed and, normally, notarized with an Apple Developer account.
+Result: `release/macos/3D Enhancer.app`.
+
+### Download a macOS build from GitHub Actions
+
+The [Build macOS app workflow](https://github.com/crazyramirez/3DEnhancer/actions/workflows/build-macos.yml) builds native apps for **Apple Silicon (arm64)** and **Intel (x86_64)** using Python 3.12 on macOS 15. It runs when app, test, or build files change on `main` or in a pull request, when a `v*` tag is pushed, or manually with **Run workflow**.
+
+1. Open **Actions → Build macOS app** and select a successful run, or click **Run workflow** to start one.
+2. Under **Artifacts**, download `3DEnhancer-macos-arm64.zip` for a Mac with an Apple M-series chip, or `3DEnhancer-macos-x86_64.zip` for an Intel Mac. Check **About This Mac** if unsure.
+3. Extract the ZIP, drag **3D Enhancer.app** to **Applications**, and open it. Python does not need to be installed.
+
+Downloads are kept for 30 days. Each build runs the tests without API calls, verifies the bundle architecture, and checks that the packaged app stays running during a brief startup check. These builds are tested on macOS 15; compatibility with older macOS versions is not verified.
+
+The app is not signed with an Apple Developer ID or notarized. If macOS blocks opening a build you trust, follow [Apple's instructions](https://support.apple.com/en-us/102445): after attempting to open it, use **System Settings → Privacy & Security → Open Anyway**. Distribution without this exception requires Developer ID signing and notarization; the workflow does not require Apple credentials or an OpenAI API key.
 
 ## Generated files
 

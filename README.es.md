@@ -109,7 +109,19 @@ chmod +x build_macos.command
 ./build_macos.command
 ```
 
-Resultado: `release/macos/3D Enhancer.app`. La aplicación generada no lleva firma de Apple; para distribuirla fuera de tu equipo deberá firmarse y, normalmente, notarizarse con una cuenta de Apple Developer.
+Resultado: `release/macos/3D Enhancer.app`.
+
+### Descargar la versión para macOS desde GitHub Actions
+
+El [workflow Build macOS app](https://github.com/crazyramirez/3DEnhancer/actions/workflows/build-macos.yml) genera aplicaciones nativas para **Apple Silicon (arm64)** e **Intel (x86_64)** con Python 3.12 en macOS 15. Se ejecuta cuando cambian archivos de la app, las pruebas o la compilación en `main` o en una pull request, al subir una etiqueta `v*`, o manualmente con **Run workflow**.
+
+1. Abre **Actions → Build macOS app** y selecciona una ejecución completada correctamente, o pulsa **Run workflow** para iniciar una.
+2. En **Artifacts**, descarga `3DEnhancer-macos-arm64.zip` para un Mac con chip Apple de la serie M, o `3DEnhancer-macos-x86_64.zip` para un Mac Intel. Puedes comprobarlo en **Acerca de este Mac**.
+3. Descomprime el ZIP, arrastra **3D Enhancer.app** a **Aplicaciones** y ábrela. No necesitas instalar Python.
+
+Las descargas se conservan durante 30 días. Cada compilación ejecuta las pruebas sin llamadas a la API, verifica la arquitectura del paquete y comprueba que la app empaquetada permanece abierta durante una prueba breve de arranque. Estas compilaciones se prueban en macOS 15; no se ha verificado la compatibilidad con versiones anteriores.
+
+La app no lleva firma de Apple Developer ID ni notarización. Si macOS bloquea una compilación en la que confías, sigue las [instrucciones de Apple](https://support.apple.com/es-es/102445): después de intentar abrirla, entra en **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**. Para distribuirla sin esta excepción hacen falta firma Developer ID y notarización; el workflow no requiere credenciales de Apple ni una clave API de OpenAI.
 
 ## Archivos generados
 

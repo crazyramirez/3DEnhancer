@@ -1,0 +1,118 @@
+name: Build macOS app
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths:
+      - '.github/workflows/build-macos.yml'
+      - 'main.py'
+      - 'renderhuman/**'
+      - 'assets/**'
+      - 'tests/**'
+      - 'requirements*.txt'
+      - '3DEnhancer.spec'
+      - 'build_macos.command'
+  pull_request:
+    paths:
+      - '.github/workflows/build-macos.yml'
+      - 'main.py'
+      - 'renderhuman/**'
+      - 'assets/**'
+      - 'tests/**'
+      - 'requirements*.txt'
+      - '3DEnhancer.spec'
+      - 'build_macos.command'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: macOS (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            arch: arm64
+          - runner: macos-15-intel
+            arch: x86_64
+    defaults:
+      run:
+        shell: bash
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONUTF8: '1'
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-build.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-build.txt
+          python -m pip check
+
+      - name: Run tests without API calls
+        run: python -m unittest discover -s tests -v
+
+      - name: Build application
+        run: zsh build_macos.command
+
+      - name: Verify bundle and startup
+        env:
+          EXPECTED_ARCH: ${{ matrix.arch }}
+        run: |
+          APP='release/macos/3D Enhancer.app'
+          plutil -lint "$APP/Contents/Info.plist"
+          test -x "$APP/Contents/MacOS/3D Enhancer"
+          lipo -verify_arch "$EXPECTED_ARCH" "$APP/Contents/MacOS/3D Enhancer"
+          python - <<'PY'
+          import subprocess
+
+          process = subprocess.Popen([
+              'release/macos/3D Enhancer.app/Contents/MacOS/3D Enhancer',
+          ])
+          try:
+              code = process.wait(timeout=15)
+          except subprocess.TimeoutExpired:
+              # The GUI event loop should remain running until explicitly closed.
+              process.terminate()
+              process.wait(timeout=15)
+          else:
+              raise SystemExit(f'Application exited unexpectedly with code {code}')
+          PY
+
+      - name: Package app preserving macOS permissions and symlinks
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent \
+            'release/macos/3D Enhancer.app' \
+            "release/macos/3DEnhancer-macos-$ARCH.zip"
+
+      - name: Upload downloadable app
+        uses: actions/upload-artifact@v7
+        with:
+          path: release/macos/3DEnhancer-macos-${{ matrix.arch }}.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
