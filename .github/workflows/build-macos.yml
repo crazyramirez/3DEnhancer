@@ -1,4 +1,4 @@
-name: Build macOS app
+name: Build desktop apps
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: macos-${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
+  group: desktop-${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
   cancel-in-progress: true
 
 jobs:
@@ -96,6 +96,88 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           path: release/macos/3DEnhancer-macos-${{ matrix.arch }}.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+
+  windows:
+    name: Windows (x86_64)
+    if: >-
+      github.repository == 'crazyramirez/3DEnhancer' &&
+      github.actor == 'crazyramirez' &&
+      github.triggering_actor == 'crazyramirez'
+    runs-on: windows-2022
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONUTF8: '1'
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          architecture: x64
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-build.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip install -r requirements-build.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m pip check
+
+      - name: Run tests without API calls
+        run: python -m unittest discover -s tests -v
+
+      - name: Build application
+        run: ./build_windows.ps1
+
+      - name: Verify executable and startup
+        shell: python {0}
+        run: |
+          import struct
+          import subprocess
+          from pathlib import Path
+
+          executable = Path('release/windows/3D Enhancer.exe')
+          with executable.open('rb') as binary:
+              assert binary.read(2) == b'MZ', 'Missing DOS header'
+              binary.seek(0x3c)
+              pe_offset = struct.unpack('<I', binary.read(4))[0]
+              binary.seek(pe_offset)
+              assert binary.read(4) == b'PE\0\0', 'Missing PE header'
+              assert struct.unpack('<H', binary.read(2))[0] == 0x8664, 'Expected x86_64 executable'
+
+          process = subprocess.Popen([str(executable)])
+          try:
+              code = process.wait(timeout=15)
+          except subprocess.TimeoutExpired:
+              # PyInstaller's onefile bootloader starts a child; close the whole tree.
+              subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], check=True)
+              process.wait(timeout=15)
+          else:
+              raise SystemExit(f'Application exited unexpectedly with code {code}')
+
+      - name: Package Windows app
+        run: |
+          Compress-Archive -LiteralPath 'release/windows/3D Enhancer.exe' `
+            -DestinationPath 'release/windows/3DEnhancer-windows-x86_64.zip' -Force
+
+      - name: Upload downloadable app
+        uses: actions/upload-artifact@v7
+        with:
+          path: release/windows/3DEnhancer-windows-x86_64.zip
           archive: false
           if-no-files-found: error
           retention-days: 30

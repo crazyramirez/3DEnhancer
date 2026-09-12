@@ -111,15 +111,17 @@ chmod +x build_macos.command
 
 Resultado: `release/macos/3D Enhancer.app`.
 
-### Descargar la versión para macOS desde GitHub Actions
+### Descargar las versiones para Windows y macOS desde GitHub Actions
 
-El [workflow Build macOS app](https://github.com/crazyramirez/3DEnhancer/actions/workflows/build-macos.yml) genera aplicaciones nativas para **Apple Silicon (arm64)** e **Intel (x86_64)** con Python 3.12 en macOS 15. Se ejecuta exclusivamente de forma manual con **Run workflow**. La compilación exige que tanto quien inició la ejecución original como quien solicita repetirla sean `crazyramirez`, dentro del repositorio `crazyramirez/3DEnhancer`; las solicitudes de otros usuarios omiten la compilación. Esta condición se aplica a esta versión del workflow; los colaboradores que puedan editarlo también pueden modificar la restricción.
+El [workflow Build desktop apps](https://github.com/crazyramirez/3DEnhancer/actions/workflows/build-macos.yml) genera aplicaciones nativas para **Windows x86_64**, **macOS Apple Silicon (arm64)** y **macOS Intel (x86_64)** con Python 3.12. Se ejecuta exclusivamente de forma manual con **Run workflow**. Cada trabajo de compilación exige que tanto quien inició la ejecución original como quien solicita repetirla sean `crazyramirez`, dentro del repositorio `crazyramirez/3DEnhancer`; las solicitudes de otros usuarios omiten las compilaciones. Esta condición se aplica a esta versión del workflow; los colaboradores que puedan editarlo también pueden modificar la restricción.
 
-1. Abre **Actions → Build macOS app** y selecciona una ejecución completada correctamente, o pulsa **Run workflow** para iniciar una.
-2. En **Artifacts**, descarga `3DEnhancer-macos-arm64.zip` para un Mac con chip Apple de la serie M, o `3DEnhancer-macos-x86_64.zip` para un Mac Intel. Puedes comprobarlo en **Acerca de este Mac**.
-3. Descomprime el ZIP, arrastra **3D Enhancer.app** a **Aplicaciones** y ábrela. No necesitas instalar Python.
+1. Abre **Actions → Build desktop apps** y selecciona una ejecución completada correctamente, o pulsa **Run workflow** para generar las tres versiones desde la misma revisión.
+2. En **Artifacts**, descarga `3DEnhancer-windows-x86_64.zip` para Windows, `3DEnhancer-macos-arm64.zip` para un Mac con chip Apple de la serie M, o `3DEnhancer-macos-x86_64.zip` para un Mac Intel. Puedes comprobarlo en **Acerca de este Mac**.
+3. Descomprime el ZIP. En Windows, abre **3D Enhancer.exe**; en macOS, arrastra **3D Enhancer.app** a **Aplicaciones** y ábrela. No necesitas instalar Python.
 
-Las descargas se conservan durante 30 días. Cada compilación ejecuta las pruebas sin llamadas a la API, verifica la arquitectura del paquete y comprueba que la app empaquetada permanece abierta durante una prueba breve de arranque. Estas compilaciones se prueban en macOS 15; no se ha verificado la compatibilidad con versiones anteriores.
+Las descargas se conservan durante 30 días. Cada compilación ejecuta las pruebas sin llamadas a la API, verifica la arquitectura del ejecutable y comprueba que la app empaquetada permanece abierta durante una prueba breve de arranque. Windows se compila en un runner con Windows Server 2022; macOS utiliza macOS 15. No se ha verificado la compatibilidad con versiones anteriores de macOS.
+
+Para publicar una release completa, descarga los tres ZIP de la misma ejecución correcta, crea una release desde **Releases → Draft a new release** y adjúntalos como archivos. Selecciona una etiqueta que apunte al commit compilado en esa ejecución. El workflow prepara las descargas; publicar la release es un paso manual independiente. La versión de Windows no lleva firma de código y puede mostrar un aviso de editor desconocido al abrirla.
 
 La app no lleva firma de Apple Developer ID ni notarización. Si macOS bloquea una compilación en la que confías, sigue las [instrucciones de Apple](https://support.apple.com/es-es/102445): después de intentar abrirla, entra en **Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente**. Para distribuirla sin esta excepción hacen falta firma Developer ID y notarización; el workflow no requiere credenciales de Apple ni una clave API de OpenAI.
 

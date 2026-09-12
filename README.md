@@ -111,15 +111,17 @@ chmod +x build_macos.command
 
 Result: `release/macos/3D Enhancer.app`.
 
-### Download a macOS build from GitHub Actions
+### Download Windows and macOS builds from GitHub Actions
 
-The [Build macOS app workflow](https://github.com/crazyramirez/3DEnhancer/actions/workflows/build-macos.yml) builds native apps for **Apple Silicon (arm64)** and **Intel (x86_64)** using Python 3.12 on macOS 15. It runs only manually with **Run workflow**. The build job requires both the original initiator and the person requesting a re-run to be `crazyramirez`, in the `crazyramirez/3DEnhancer` repository; other users' requests skip the build. This guard applies to this workflow version; collaborators who can edit the workflow can also change the restriction.
+The [Build desktop apps workflow](https://github.com/crazyramirez/3DEnhancer/actions/workflows/build-macos.yml) builds native apps for **Windows x86_64**, **macOS Apple Silicon (arm64)** and **macOS Intel (x86_64)** using Python 3.12. It runs only manually with **Run workflow**. Every build job requires both the original initiator and the person requesting a re-run to be `crazyramirez`, in the `crazyramirez/3DEnhancer` repository; other users' requests skip the builds. This guard applies to this workflow version; collaborators who can edit the workflow can also change the restriction.
 
-1. Open **Actions → Build macOS app** and select a successful run, or click **Run workflow** to start one.
-2. Under **Artifacts**, download `3DEnhancer-macos-arm64.zip` for a Mac with an Apple M-series chip, or `3DEnhancer-macos-x86_64.zip` for an Intel Mac. Check **About This Mac** if unsure.
-3. Extract the ZIP, drag **3D Enhancer.app** to **Applications**, and open it. Python does not need to be installed.
+1. Open **Actions → Build desktop apps** and select a successful run, or click **Run workflow** to start all three builds from the same revision.
+2. Under **Artifacts**, download `3DEnhancer-windows-x86_64.zip` for Windows, `3DEnhancer-macos-arm64.zip` for a Mac with an Apple M-series chip, or `3DEnhancer-macos-x86_64.zip` for an Intel Mac. Check **About This Mac** if unsure.
+3. Extract the ZIP. On Windows, open **3D Enhancer.exe**; on macOS, drag **3D Enhancer.app** to **Applications** and open it. Python does not need to be installed.
 
-Downloads are kept for 30 days. Each build runs the tests without API calls, verifies the bundle architecture, and checks that the packaged app stays running during a brief startup check. These builds are tested on macOS 15; compatibility with older macOS versions is not verified.
+Downloads are kept for 30 days. Each build runs the tests without API calls, verifies the executable architecture, and checks that the packaged app stays running during a brief startup check. Windows builds use a Windows Server 2022 runner; macOS builds use macOS 15. Compatibility with older macOS versions is not verified.
+
+To publish a complete release, download all three ZIPs from the same successful run, create a release from **Releases → Draft a new release**, and attach them as assets. Select a tag pointing to the commit compiled by that run. The workflow prepares the downloads; publishing the release is a separate manual step. Windows builds are unsigned, and Windows may display a publisher warning when opening them.
 
 The app is not signed with an Apple Developer ID or notarized. If macOS blocks opening a build you trust, follow [Apple's instructions](https://support.apple.com/en-us/102445): after attempting to open it, use **System Settings → Privacy & Security → Open Anyway**. Distribution without this exception requires Developer ID signing and notarization; the workflow does not require Apple credentials or an OpenAI API key.
 
