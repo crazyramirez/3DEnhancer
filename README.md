@@ -1,22 +1,26 @@
 # 3D Enhancer
 
-Aplicación de escritorio en Python y PyQt5 que envía renders completos a GPT Image 2 para sustituir sus personajes 3D por personas fotográficas, manteniendo la escena y la composición.
+![3D Enhancer — conceptual transition from a 3D character to a photographic person](assets/readme-header.png)
 
-## Qué incluye
+*Read this in [Spanish / Español](README.es.md).*
 
-- Selección múltiple de imágenes, carpetas y arrastrar/soltar.
-- Un único método de procesado: edición de la imagen completa con `gpt-image-2` y `quality="high"`.
-- Prompt restrictivo editable para conservar número, posición, escala, pose y ropa de cada personaje, además de arquitectura, textos, iluminación y cámara.
-- Procesado configurable de una a cinco imágenes simultáneas.
-- Detección de resultados existentes con opción de omitirlos o reprocesarlos sin sobrescribir archivos.
-- Estado por imagen, progreso, cancelación, registro y previsualización original/resultado.
-- Directorio de salida y ajustes persistentes mediante `QSettings`.
+Python and PyQt5 desktop application that sends complete renders to GPT Image 2 to replace their 3D characters with photographic people, preserving the scene and the composition.
 
-Cada imagen procesada realiza una llamada independiente a la API.
+## What it includes
 
-## Instalación
+- Multiple selection of images, folders, and drag and drop.
+- A single processing method: full-image editing with `gpt-image-2` and `quality="high"`.
+- Editable restrictive prompt to preserve the number, position, scale, pose, and clothing of each character, as well as architecture, text, lighting, and camera.
+- Configurable processing of one to five simultaneous images.
+- Detection of existing results with the option to skip or reprocess them without overwriting files.
+- Per-image status, progress, cancellation, log, and original/result preview.
+- Output directory and persistent settings through `QSettings`.
 
-Se recomienda Python 3.11 o 3.12.
+Each processed image makes an independent API call.
+
+## Installation
+
+Python 3.11 or 3.12 is recommended.
 
 ```powershell
 python -m venv .venv
@@ -25,69 +29,69 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-La clave de OpenAI se introduce directamente en la parte superior derecha de la aplicación. Se guarda con DPAPI en Windows o en el Llavero de macOS, vinculada al usuario actual; no se crea ningún archivo `.env` ni se incluye la clave en el proyecto.
+The OpenAI key is entered directly in the top right of the application. It is stored with DPAPI on Windows or in the macOS Keychain, bound to the current user; no `.env` file is created and the key is never included in the project.
 
-## Uso
+## Usage
 
 ```powershell
 python main.py
 ```
 
-En Windows también puedes abrir `run_app.bat`.
+On Windows you can also open `run_app.bat`.
 
-## Generar las aplicaciones de escritorio
+## Building the desktop applications
 
-El icono y la configuración de PyInstaller ya están incluidos. Los binarios deben compilarse en su propio sistema operativo; PyInstaller no permite crear de forma fiable una aplicación de macOS desde Windows.
+The icon and the PyInstaller configuration are already included. Binaries must be built on their own operating system; PyInstaller cannot reliably create a macOS application from Windows.
 
-Windows, desde PowerShell:
+Windows, from PowerShell:
 
 ```powershell
 .\build_windows.ps1
 ```
 
-Resultado: `release/windows/3D Enhancer.exe`.
+Result: `release/windows/3D Enhancer.exe`.
 
-macOS, desde Terminal:
+macOS, from Terminal:
 
 ```bash
 chmod +x build_macos.command
 ./build_macos.command
 ```
 
-Resultado: `release/macos/3D Enhancer.app`. La aplicación generada no lleva firma de Apple; para distribuirla fuera de tu equipo deberá firmarse y, normalmente, notarizarse con una cuenta de Apple Developer.
+Result: `release/macos/3D Enhancer.app`. The generated application carries no Apple signature; to distribute it outside your own machine it must be signed and, normally, notarized with an Apple Developer account.
 
-1. Introduce la clave de OpenAI y pulsa **Guardar API key**. Solo es necesario la primera vez o al cambiarla.
-2. Añade imágenes, una carpeta completa o arrastra los renders sobre la ventana.
-3. Selecciona el directorio de salida. La aplicación lo recordará.
-4. Opcionalmente abre **Ajustes avanzados** para cambiar el número de imágenes simultáneas o el prompt.
-5. Pulsa **Procesar imágenes**.
+1. Enter the OpenAI key and press **Guardar API key**. This is only necessary the first time or when changing it.
+2. Add images, a complete folder, or drag the renders onto the window.
+3. Select the output directory. The application will remember it.
+4. Optionally open **Ajustes avanzados** to change the number of simultaneous images or the prompt.
+5. Press **Procesar imágenes**.
 
-Si ya existen resultados, la aplicación pregunta una sola vez si deben omitirse o reprocesarse. Al reprocesar conserva los anteriores y crea nombres como `render_01_humanized_2.png`, `render_01_humanized_3.png`, etc.
+If results already exist, the application asks once whether they should be skipped or reprocessed. When reprocessing it keeps the previous ones and creates names such as `render_01_humanized_2.png`, `render_01_humanized_3.png`, and so on.
 
-## Archivos generados
+## Generated files
 
-Para `render_01.jpg` se crea `render_01_humanized.png`. Los reprocesados utilizan sufijos numéricos y nunca sobrescriben un resultado existente.
+For `render_01.jpg` the file `render_01_humanized.png` is created. Reprocessed images use numeric suffixes and never overwrite an existing result.
 
-## Ajustes recomendados
+## Recommended settings
 
-- El valor predeterminado procesa hasta cinco imágenes simultáneas. Redúcelo si la cuenta alcanza límites temporales de la API.
-- El prompt predeterminado evita enfatizar caras o pelo y exige conservar tamaño de cabeza, silueta, pose, ropa y oclusiones.
-- Las caras lejanas se piden con detalle moderado para evitar rasgos sobredimensionados o inventados.
-- Cancelar detiene los siguientes grupos después de que terminen las llamadas activas.
+- The default value processes up to five simultaneous images. Reduce it if the account hits temporary API limits.
+- The default prompt avoids emphasizing faces or hair and requires preserving head size, silhouette, pose, clothing, and occlusions.
+- Distant faces are requested with moderate detail to avoid oversized or invented features.
+- Cancelling stops the following groups after the active calls finish.
 
-## Verificación sin consumir la API
+## Verification without consuming the API
 
 ```powershell
 python -m unittest discover -s tests -v
 python -m compileall -q main.py renderhuman tests
 ```
 
-Las pruebas usan un cliente falso y no realizan peticiones externas.
+The tests use a fake client and make no external requests.
 
-## Notas técnicas
+## Technical notes
 
-La integración sigue la [guía oficial de generación y edición de imágenes de OpenAI](https://developers.openai.com/api/docs/guides/image-generation). Se envía una copia PNG normalizada del render completo. La conservación de la escena depende del seguimiento del prompt y no constituye un bloqueo matemático de píxeles.
+The integration follows the [official OpenAI image generation and editing guide](https://developers.openai.com/api/docs/guides/image-generation). A normalized PNG copy of the complete render is sent. Preserving the scene depends on prompt adherence and is not a mathematical pixel lock.
 
-La clave nunca se muestra de nuevo ni se guarda en texto plano. Windows utiliza DPAPI y macOS utiliza su Llavero. Al cambiar de usuario o reinstalar el sistema será necesario volver a introducirla.
+The key is never displayed again nor stored in plain text. Windows uses DPAPI and macOS uses its Keychain. Changing user or reinstalling the system requires entering it again.
 
-Revisa los requisitos de privacidad de tu proyecto y las condiciones vigentes de uso de la API antes de procesar material confidencial o distribuir la aplicación.
+Review your project's privacy requirements and the current API terms of use before processing confidential material or distributing the application.
