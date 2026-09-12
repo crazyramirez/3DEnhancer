@@ -28,8 +28,10 @@ class MainWindowSettingsTests(unittest.TestCase):
         self.addCleanup(lambda: apply_language("system", self.app))
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
+        # Match MainWindow's canonical paths (macOS /var resolves to /private/var).
+        self.root = Path(self.directory.name).resolve()
         self.settings = QSettings(
-            str(Path(self.directory.name) / "settings.ini"), QSettings.IniFormat
+            str(self.root / "settings.ini"), QSettings.IniFormat
         )
         settings_patch = patch("renderhuman.ui.main_window.QSettings", return_value=self.settings)
         settings_patch.start()
@@ -66,7 +68,7 @@ class MainWindowSettingsTests(unittest.TestCase):
 
     def test_source_output_preference_preserves_shared_directory(self) -> None:
         window = self.window()
-        shared = str(Path(self.directory.name) / "shared")
+        shared = str(self.root / "shared")
         window.output_edit.setText(shared)
         window.source_output_check.setChecked(True)
         self.assertTrue(window._processing_options().use_source_directory)
@@ -89,7 +91,7 @@ class MainWindowSettingsTests(unittest.TestCase):
         window = self.window()
         sources = []
         for folder in ("A", "B"):
-            parent = Path(self.directory.name) / folder
+            parent = self.root / folder
             parent.mkdir()
             source = parent / "render.png"
             Image.new("RGB", (100, 60), "blue").save(source)
@@ -115,7 +117,7 @@ class MainWindowSettingsTests(unittest.TestCase):
     def test_live_language_change_preserves_processing_state_and_translates_history(self) -> None:
         window = self.window()
         window.language_combo.setCurrentIndex(window.language_combo.findData("es"))
-        source = Path(self.directory.name) / "Resultado.png"
+        source = self.root / "Resultado.png"
         Image.new("RGB", (100, 60), "blue").save(source)
         window._add_paths([source])
         prompt = "Procesar imágenes {custom prompt}"

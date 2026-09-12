@@ -29,7 +29,8 @@ class ComparisonViewerTests(unittest.TestCase):
     def setUp(self) -> None:
         self.directory = tempfile.TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)
-        self.root = Path(self.directory.name)
+        # Match MainWindow's canonical paths (macOS /var resolves to /private/var).
+        self.root = Path(self.directory.name).resolve()
         self.source = self.root / "original.png"
         self.result = self.root / "original_humanized.png"
         Image.new("RGB", (1000, 800), "red").save(self.source)
