@@ -45,7 +45,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-La clave de OpenAI se introduce directamente en la parte superior derecha de la aplicación. Se guarda con DPAPI en Windows o en el Llavero de macOS, vinculada al usuario actual; no se crea ningún archivo `.env` ni se incluye la clave en el proyecto.
+La clave de OpenAI se introduce directamente en la parte superior derecha de la aplicación. **La clave API se guarda cifrada localmente en tu equipo**, mediante DPAPI en Windows o el Llavero de macOS, vinculada al usuario actual. No se guarda en texto plano, no se crea ningún archivo `.env` ni se incluye la clave en el proyecto.
 
 ## Uso
 
@@ -153,6 +153,6 @@ Las pruebas del visor cubren la división visual del antes/después, los control
 
 La integración sigue la [guía oficial de generación y edición de imágenes de OpenAI](https://developers.openai.com/api/docs/guides/image-generation). Se envía una copia PNG normalizada del render completo. La conservación de la escena depende del seguimiento del prompt y no constituye un bloqueo matemático de píxeles.
 
-La clave nunca se muestra de nuevo ni se guarda en texto plano. Windows utiliza DPAPI y macOS utiliza su Llavero. Al cambiar de usuario o reinstalar el sistema será necesario volver a introducirla.
+La clave nunca se muestra de nuevo y se almacena cifrada localmente: Windows utiliza DPAPI y macOS utiliza su Llavero. Al cambiar de usuario o reinstalar el sistema será necesario volver a introducirla.
 
 Revisa los requisitos de privacidad de tu proyecto y las condiciones vigentes de uso de la API antes de procesar material confidencial o distribuir la aplicación.

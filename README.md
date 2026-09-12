@@ -45,7 +45,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-The OpenAI key is entered directly in the top right of the application. It is stored with DPAPI on Windows or in the macOS Keychain, bound to the current user; no `.env` file is created and the key is never included in the project.
+The OpenAI key is entered directly in the top right of the application. **The API key is stored encrypted locally on your computer**, using DPAPI on Windows or the macOS Keychain, bound to the current user. It is never stored in plain text, no `.env` file is created, and the key is never included in the project.
 
 ## Usage
 
@@ -153,6 +153,6 @@ Viewer tests cover the rendered before/after split, synchronized controls, zoom 
 
 The integration follows the [official OpenAI image generation and editing guide](https://developers.openai.com/api/docs/guides/image-generation). A normalized PNG copy of the complete render is sent. Preserving the scene depends on prompt adherence and is not a mathematical pixel lock.
 
-The key is never displayed again nor stored in plain text. Windows uses DPAPI and macOS uses its Keychain. Changing user or reinstalling the system requires entering it again.
+The key is never displayed again and is stored encrypted locally: Windows uses DPAPI and macOS uses its Keychain. Changing user or reinstalling the system requires entering it again.
 
 Review your project's privacy requirements and the current API terms of use before processing confidential material or distributing the application.
