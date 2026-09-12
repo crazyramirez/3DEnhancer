@@ -10,7 +10,15 @@ Python and PyQt5 desktop application that sends complete renders to GPT Image 2 
 
 A basic video demonstration of the application in action and the generated result.
 
-[Watch the demo (MP4)](demo_1.mp4)
+[Watch the demo (MP4)](demos/demo_1.mp4)
+
+### Before and after
+
+Comparison of the original render and the result generated with **GPT Image 2.5** in 3D Enhancer. Click either image to view it at full size.
+
+| Before · Original render | After · GPT Image 2.5 |
+| :---: | :---: |
+| [![Original render before processing](demos/demo.webp)](demos/demo.webp) | [![Result generated with GPT Image 2.5 in 3D Enhancer](demos/demo_3denhancer.webp)](demos/demo_3denhancer.webp) |
 
 ## What it includes
 
