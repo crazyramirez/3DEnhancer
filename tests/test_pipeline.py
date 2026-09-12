@@ -10,6 +10,7 @@ from types import SimpleNamespace
 from PIL import Image
 
 from renderhuman.config import OPENAI_IMAGE_MODEL, OPENAI_IMAGE_MODELS, ProcessingOptions
+from renderhuman.i18n import tr
 from renderhuman.services.openai_editor import OpenAIImageEditor
 from renderhuman.services.pipeline import RenderPipeline
 
@@ -90,8 +91,9 @@ class PipelineTests(unittest.TestCase):
                         self.assertEqual(output.size, (1200, 700))
 
     def test_unsupported_model_is_rejected_before_processing(self) -> None:
-        with self.assertRaisesRegex(ValueError, "modelo de imagen compatible"):
+        with self.assertRaises(ValueError) as raised:
             RenderPipeline(ProcessingOptions(image_model="unknown-model"))
+        self.assertEqual(str(raised.exception), tr("Selecciona un modelo de imagen compatible."))
 
 
 class FakeImagesEndpoint:

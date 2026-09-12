@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 
+from PyQt5.QtCore import QLibraryInfo
+
 
 PROJECT_ROOT = Path(SPECPATH)
 IS_MACOS = sys.platform == "darwin"
@@ -12,7 +14,10 @@ a = Analysis(
     [str(PROJECT_ROOT / "main.py")],
     pathex=[str(PROJECT_ROOT)],
     binaries=[],
-    datas=[(str(PROJECT_ROOT / "assets" / "app_icon.png"), "assets")],
+    datas=[
+        (str(PROJECT_ROOT / "assets" / "app_icon.png"), "assets"),
+        (str(Path(QLibraryInfo.location(QLibraryInfo.TranslationsPath)) / "qtbase_es.qm"), "translations"),
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

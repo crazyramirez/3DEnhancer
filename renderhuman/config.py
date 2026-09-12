@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
+
+from renderhuman.i18n import tr
 
 
 APP_NAME = "3D Enhancer"
@@ -42,11 +45,19 @@ class ProcessingOptions:
     parallel_jobs: int = 5
     prompt: str = DEFAULT_PROMPT
     image_model: str = OPENAI_IMAGE_MODEL
+    use_source_directory: bool = False
+
+    def output_directory_for(self, source_path: Path, output_dir: Path | None) -> Path:
+        if self.use_source_directory:
+            return source_path.parent
+        if output_dir is None:
+            raise ValueError(tr("Selecciona un directorio de salida."))
+        return output_dir
 
     def validate(self) -> None:
         if self.image_model not in OPENAI_IMAGE_MODELS:
-            raise ValueError("Selecciona un modelo de imagen compatible.")
+            raise ValueError(tr("Selecciona un modelo de imagen compatible."))
         if not self.prompt.strip():
-            raise ValueError("El prompt no puede estar vacío.")
+            raise ValueError(tr("El prompt no puede estar vacío."))
         if not 1 <= self.parallel_jobs <= 5:
-            raise ValueError("El procesado paralelo debe estar entre 1 y 5 imágenes.")
+            raise ValueError(tr("El procesado paralelo debe estar entre 1 y 5 imágenes."))

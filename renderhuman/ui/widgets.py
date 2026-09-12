@@ -6,6 +6,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel
 
+from renderhuman.i18n import render_text, tr
+
 
 class ImagePreview(QLabel):
     def __init__(self, empty_text: str, parent=None) -> None:
@@ -16,6 +18,7 @@ class ImagePreview(QLabel):
         self._empty_text = empty_text
         self._source_pixmap = QPixmap()
         self._path: Path | None = None
+        self._load_failed = False
         self.clear_image()
 
     @property
@@ -29,20 +32,28 @@ class ImagePreview(QLabel):
         candidate = Path(path)
         pixmap = QPixmap(str(candidate))
         if pixmap.isNull():
+            self._load_failed = True
             self._source_pixmap = QPixmap()
             self._path = None
-            self.setText("No se pudo cargar la previsualización")
+            self.setText(tr("No se pudo cargar la previsualización"))
             return
         self._path = candidate
+        self._load_failed = False
         self._source_pixmap = pixmap
         self.setToolTip(str(candidate))
         self._render_scaled()
 
     def clear_image(self) -> None:
+        self._load_failed = False
         self._path = None
         self._source_pixmap = QPixmap()
         self.setToolTip("")
-        self.setText(self._empty_text)
+        self.retranslate()
+
+    def retranslate(self) -> None:
+        if self._source_pixmap.isNull():
+            self.setText(tr("No se pudo cargar la previsualización") if self._load_failed
+                         else render_text(self._empty_text))
 
     def _render_scaled(self) -> None:
         if self._source_pixmap.isNull():

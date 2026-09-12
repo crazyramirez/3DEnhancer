@@ -8,6 +8,7 @@ Aplicación de escritorio en Python y PyQt5 que envía renders completos a GPT I
 
 ## Qué incluye
 
+- Interfaz en español e inglés, con detección del idioma del sistema y selector superior para cambiarlo al vuelo.
 - Selección múltiple de imágenes, carpetas y arrastrar/soltar.
 - Edición de la imagen completa con un selector de modelo: `gpt-image-2` o `gpt-image-2.5-sunburst`, ambos con `quality="high"`. Se recuerda la selección; GPT Image 2 sigue siendo el predeterminado.
 - Prompt restrictivo editable para conservar número, posición, escala, pose y ropa de cada personaje, además de arquitectura, textos, iluminación y cámara.
@@ -17,6 +18,14 @@ Aplicación de escritorio en Python y PyQt5 que envía renders completos a GPT I
 - Directorio de salida y ajustes persistentes mediante `QSettings`.
 
 Cada imagen procesada realiza una llamada independiente a la API.
+
+## Idioma de la interfaz
+
+El selector **Idioma**, en la parte superior, ofrece **Sistema**, **Español** y **English**. El cambio es inmediato y se recuerda para la próxima apertura, incluso si cambias de idioma mientras se procesa un lote. Se conservan las imágenes, las previsualizaciones, los ajustes y el progreso.
+
+**Sistema** es la opción predeterminada: utiliza el idioma principal de pantalla del sistema operativo. Los sistemas en español, incluidas variantes regionales como España y México, utilizan español; los sistemas en inglés y en otros idiomas utilizan inglés. Puedes volver a esta opción para recuperar la detección automática.
+
+Los botones, las ayudas, los diálogos, los mensajes de progreso y el registro utilizan el idioma seleccionado. El prompt de edición predeterminado permanece en inglés en ambas interfaces. Cambiar el idioma de la interfaz no traduce los prompts personalizados ni las rutas de archivos.
 
 ## Instalación
 
@@ -43,12 +52,12 @@ Si utilizas la versión empaquetada para Windows, abre `release/windows/3D Enhan
 
 1. Introduce la clave de OpenAI y pulsa **Guardar API key**. Solo es necesario la primera vez o al cambiarla.
 2. Añade imágenes, una carpeta completa o arrastra los renders sobre la ventana.
-3. Selecciona el directorio de salida.
+3. Selecciona un directorio de salida común o marca **Guardar junto a cada imagen de entrada**. Con la casilla marcada, cada resultado se guarda en la carpeta de su original, incluso si el lote contiene imágenes de distintas carpetas. Se desactiva el directorio común y se recuerda la preferencia; al desmarcarla se recupera el directorio común anterior.
 4. Elige **GPT Image 2** o **GPT Image 2.5 (Sunburst)** en **Modelo de imagen**, justo debajo del directorio de salida.
 5. Opcionalmente abre **Ajustes avanzados** para cambiar el número de imágenes simultáneas o el prompt.
 6. Pulsa **Procesar imágenes**.
 
-La interfaz utiliza etiquetas en español; los pasos anteriores mantienen los nombres que aparecen en la aplicación.
+Estos pasos utilizan las etiquetas de la interfaz en español. Para las etiquetas en inglés, consulta el [README en inglés](README.md).
 
 Si ya existen resultados, la aplicación pregunta una sola vez si deben omitirse o reprocesarse. Al reprocesar conserva los anteriores y crea nombres como `render_01_humanized_2.png`, `render_01_humanized_3.png`, etc.
 
@@ -90,6 +99,8 @@ Resultado: `release/macos/3D Enhancer.app`. La aplicación generada no lleva fir
 
 Para `render_01.jpg` se crea `render_01_humanized.png`. Los reprocesados utilizan sufijos numéricos y nunca sobrescriben un resultado existente.
 
+Con **Guardar junto a cada imagen de entrada**, los resultados existentes se comprueban en la carpeta de cada original. Las opciones de omitir o reprocesar y renombrar funcionan también en este modo.
+
 ## Ajustes recomendados
 
 - El valor predeterminado procesa hasta cinco imágenes simultáneas. Redúcelo si la cuenta alcanza límites temporales de la API.
@@ -105,6 +116,8 @@ python -m compileall -q main.py renderhuman tests
 ```
 
 Las pruebas usan un cliente falso y no realizan peticiones externas. Cubren ambos modelos, el envío del modelo seleccionado a la API de imágenes, el guardado y la recuperación de la selección y la desactivación del selector durante el procesado, además del tratamiento de imágenes, las credenciales y el procesado paralelo.
+
+Las pruebas de idioma también cubren la detección del idioma del sistema, las variantes regionales, el inglés como alternativa, el cambio al vuelo durante el procesado, la preferencia guardada y la traducción del progreso, los diálogos y el registro sin alterar los datos del usuario.
 
 ## Notas técnicas
 

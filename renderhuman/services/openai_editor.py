@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from renderhuman.i18n import tr
 from renderhuman.config import OPENAI_IMAGE_MODEL
 from renderhuman.services.credentials import CredentialStore
 
@@ -40,14 +41,14 @@ class OpenAIImageEditor:
         api_key = self.credential_store.load_api_key()
         if not api_key:
             raise MissingAPIKeyError(
-                "No hay una clave de OpenAI guardada. Introdúcela en la aplicación."
+                tr("No hay una clave de OpenAI guardada. Introdúcela en la aplicación.")
             )
 
         try:
             from openai import OpenAI
         except ImportError as error:
             raise RuntimeError(
-                "No está instalado el SDK de OpenAI. Ejecuta: pip install -r requirements.txt"
+                tr("No está instalado el SDK de OpenAI. Ejecuta: pip install -r requirements.txt")
             ) from error
 
         self._client = OpenAI(api_key=api_key, timeout=240.0, max_retries=2)
@@ -73,8 +74,8 @@ class OpenAIImageEditor:
             )
 
         if not response.data:
-            raise RuntimeError(f"{model} no devolvió ninguna imagen.")
+            raise RuntimeError(tr("{model} no devolvió ninguna imagen.", model=model))
         encoded = response.data[0].b64_json
         if not encoded:
-            raise RuntimeError(f"{model} devolvió una respuesta sin datos de imagen.")
+            raise RuntimeError(tr("{model} devolvió una respuesta sin datos de imagen.", model=model))
         return base64.b64decode(encoded)

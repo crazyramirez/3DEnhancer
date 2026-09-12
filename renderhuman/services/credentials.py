@@ -13,6 +13,7 @@ else:  # Keep the module importable in the macOS application bundle.
 
 from PyQt5.QtCore import QSettings
 
+from renderhuman.i18n import tr
 from renderhuman.config import APP_NAME
 
 
@@ -51,7 +52,7 @@ class CredentialStore:
     def _windows_libraries():
         if sys.platform != "win32":
             raise SecureStorageError(
-                "El almacenamiento cifrado de la clave requiere Windows."
+                tr("El almacenamiento cifrado de la clave requiere Windows.")
             )
         assert wintypes is not None
 
@@ -97,7 +98,8 @@ class CredentialStore:
             ctypes.byref(protected),
         ):
             raise SecureStorageError(
-                f"Windows no pudo cifrar la clave: {ctypes.WinError(ctypes.get_last_error())}"
+                tr("Windows no pudo cifrar la clave: {error}",
+                   error=ctypes.WinError(ctypes.get_last_error()))
             )
         try:
             return ctypes.string_at(protected.pbData, protected.cbData)
@@ -120,7 +122,7 @@ class CredentialStore:
             ctypes.byref(plaintext),
         ):
             raise SecureStorageError(
-                "No se pudo descifrar la clave. Vuelve a introducirla en la aplicación."
+                tr("No se pudo descifrar la clave. Vuelve a introducirla en la aplicación.")
             )
         try:
             return ctypes.string_at(plaintext.pbData, plaintext.cbData)
@@ -130,7 +132,7 @@ class CredentialStore:
     def save_api_key(self, api_key: str) -> None:
         normalized = api_key.strip()
         if not normalized:
-            raise ValueError("La clave de OpenAI no puede estar vacía.")
+            raise ValueError(tr("La clave de OpenAI no puede estar vacía."))
         if sys.platform == "darwin":
             self._save_macos_key(normalized)
             return
@@ -141,7 +143,7 @@ class CredentialStore:
         )
         self.settings.sync()
         if self.settings.status() != QSettings.NoError:
-            raise SecureStorageError("No se pudo guardar la clave cifrada localmente.")
+            raise SecureStorageError(tr("No se pudo guardar la clave cifrada localmente."))
 
     def load_api_key(self) -> str | None:
         if sys.platform == "darwin":
@@ -154,7 +156,7 @@ class CredentialStore:
             return self._unprotect(ciphertext).decode("utf-8")
         except (ValueError, UnicodeDecodeError) as error:
             raise SecureStorageError(
-                "La clave guardada está dañada. Vuelve a introducirla."
+                tr("La clave guardada está dañada. Vuelve a introducirla.")
             ) from error
 
     def has_api_key(self) -> bool:
@@ -186,7 +188,7 @@ class CredentialStore:
             )
         except (OSError, subprocess.SubprocessError) as error:
             raise SecureStorageError(
-                "No se pudo acceder al Llavero de macOS."
+                tr("No se pudo acceder al Llavero de macOS.")
             ) from error
 
     @classmethod
@@ -203,7 +205,7 @@ class CredentialStore:
         )
         if result.returncode != 0:
             raise SecureStorageError(
-                "macOS no pudo guardar la clave en el Llavero."
+                tr("macOS no pudo guardar la clave en el Llavero.")
             )
 
     @classmethod
@@ -220,7 +222,7 @@ class CredentialStore:
             return result.stdout.strip() or None
         if result.returncode == 44 or "could not be found" in result.stderr.lower():
             return None
-        raise SecureStorageError("No se pudo leer la clave del Llavero de macOS.")
+        raise SecureStorageError(tr("No se pudo leer la clave del Llavero de macOS."))
 
     @classmethod
     def _delete_macos_key(cls) -> None:
@@ -232,4 +234,4 @@ class CredentialStore:
             cls.KEYCHAIN_SERVICE,
         )
         if result.returncode not in (0, 44) and "could not be found" not in result.stderr.lower():
-            raise SecureStorageError("No se pudo eliminar la clave del Llavero de macOS.")
+            raise SecureStorageError(tr("No se pudo eliminar la clave del Llavero de macOS."))

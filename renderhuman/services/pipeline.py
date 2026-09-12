@@ -9,6 +9,7 @@ from typing import Callable, Literal
 
 from PIL import Image
 
+from renderhuman.i18n import tr
 from renderhuman.config import OPENAI_IMAGE_MODELS, ProcessingOptions
 from renderhuman.core.images import (
     CanvasTransform,
@@ -55,7 +56,7 @@ class RenderPipeline:
     @staticmethod
     def _check_cancelled(cancel_event: threading.Event | None) -> None:
         if cancel_event and cancel_event.is_set():
-            raise ProcessingCancelled("Procesado cancelado.")
+            raise ProcessingCancelled(tr("Procesado cancelado."))
 
     def _edit_complete_image(
         self,
@@ -71,9 +72,9 @@ class RenderPipeline:
             self._check_cancelled(cancel_event)
             self._notify(
                 stage_callback,
-                "Editando imagen completa",
-                f"{OPENAI_IMAGE_MODELS[self.options.image_model]} · calidad alta · "
-                f"lienzo {transform.api_size}",
+                tr("Editando imagen completa"),
+                tr("{model} · calidad alta · lienzo {size}",
+                   model=OPENAI_IMAGE_MODELS[self.options.image_model], size=transform.api_size),
                 4,
             )
             generated_bytes = self.editor.edit(
@@ -99,19 +100,19 @@ class RenderPipeline:
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_path or unique_output_path(output_dir, source_path.stem)
 
-        self._notify(stage_callback, "Preparando", "Leyendo y normalizando el render", 1)
+        self._notify(stage_callback, tr("Preparando"), tr("Leyendo y normalizando el render"), 1)
         original = load_render_image(source_path)
         self._check_cancelled(cancel_event)
         self._notify(
             stage_callback,
-            "Preparando edición completa",
-            "Conservando el render completo como referencia visual",
+            tr("Preparando edición completa"),
+            tr("Conservando el render completo como referencia visual"),
             2,
         )
         self._notify(
             stage_callback,
-            "Aplicando instrucciones",
-            "Una llamada; solo deben cambiar los personajes 3D",
+            tr("Aplicando instrucciones"),
+            tr("Una llamada; solo deben cambiar los personajes 3D"),
             3,
         )
         result_image = self._edit_complete_image(
@@ -122,15 +123,16 @@ class RenderPipeline:
         self._check_cancelled(cancel_event)
         self._notify(
             stage_callback,
-            "Restaurando resolución",
-            f"Recuperando el tamaño original de {original.width} × {original.height} px",
+            tr("Restaurando resolución"),
+            tr("Recuperando el tamaño original de {width} × {height} px",
+               width=original.width, height=original.height),
             5,
         )
-        self._notify(stage_callback, "Guardando", output_path.name, 6)
+        self._notify(stage_callback, tr("Guardando"), output_path.name, 6)
         save_image_atomic(result_image, output_path)
         return PipelineItemResult(
             source_path=source_path,
             status="completed",
-            message="Completada en una llamada de imagen completa.",
+            message=tr("Completada en una llamada de imagen completa."),
             output_path=output_path,
         )

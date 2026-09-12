@@ -9,6 +9,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageOps
 
+from renderhuman.i18n import tr
+
 
 MIN_API_PIXELS = 655_360
 MAX_API_PIXELS = 8_294_400
@@ -43,7 +45,7 @@ class CanvasTransform:
     def for_image(cls, size: tuple[int, int]) -> "CanvasTransform":
         width, height = size
         if width <= 0 or height <= 0:
-            raise ValueError("La imagen tiene dimensiones no válidas.")
+            raise ValueError(tr("La imagen tiene dimensiones no válidas."))
 
         # Add protected padding only when needed to satisfy the API's 3:1 ratio.
         base_width = max(float(width), float(height) / MAX_API_RATIO)
@@ -86,10 +88,10 @@ class CanvasTransform:
             scale *= 0.99
             content_width, content_height, canvas_width, canvas_height = dimensions(scale)
         else:
-            raise ValueError("No se pudo adaptar la imagen a un tamaño admitido por GPT Image 2.")
+            raise ValueError(tr("No se pudo adaptar la imagen a un tamaño admitido por GPT Image 2."))
 
         if canvas_width * canvas_height < MIN_API_PIXELS:
-            raise ValueError("No se pudo alcanzar el tamaño mínimo requerido por GPT Image 2.")
+            raise ValueError(tr("No se pudo alcanzar el tamaño mínimo requerido por GPT Image 2."))
 
         offset_x = (canvas_width - content_width) // 2
         offset_y = (canvas_height - content_height) // 2

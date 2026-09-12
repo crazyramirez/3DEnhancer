@@ -8,6 +8,7 @@ Python and PyQt5 desktop application that sends complete renders to GPT Image 2 
 
 ## What it includes
 
+- English and Spanish interface, with system language detection and a selector at the top for switching languages instantly.
 - Multiple selection of images, folders, and drag and drop.
 - Full-image editing with a model selector: `gpt-image-2` or `gpt-image-2.5-sunburst`, both with `quality="high"`. The selection is remembered; GPT Image 2 remains the default.
 - Editable restrictive prompt to preserve the number, position, scale, pose, and clothing of each character, as well as architecture, text, lighting, and camera.
@@ -17,6 +18,14 @@ Python and PyQt5 desktop application that sends complete renders to GPT Image 2 
 - Output directory and persistent settings through `QSettings`.
 
 Each processed image makes an independent API call.
+
+## Interface language
+
+The **Language** selector at the top offers **System**, **Español**, and **English**. Changes take effect immediately and are remembered for the next launch, even when switching during batch processing. Images, previews, settings, and progress are preserved.
+
+**System** is the default: it uses the operating system's primary display language. Spanish systems, including regional variants such as Spain and Mexico, use Spanish; English and other system languages use English. Select this option again to return to automatic detection.
+
+Buttons, tooltips, dialogs, progress messages, and the log use the selected language. The default editing prompt remains in English in both interfaces. Changing the interface language does not translate custom prompts or file paths.
 
 ## Installation
 
@@ -41,14 +50,14 @@ On Windows you can also open `run_app.bat`.
 
 If you use the packaged Windows version, open `release/windows/3D Enhancer.exe`.
 
-1. Enter the OpenAI key and press **Guardar API key**. This is only necessary the first time or when changing it.
+1. Enter the OpenAI key and press **Save API key**. This is only necessary the first time or when changing it.
 2. Add images, a complete folder, or drag the renders onto the window.
-3. Select the output directory.
-4. Choose **GPT Image 2** or **GPT Image 2.5 (Sunburst)** in **Modelo de imagen**, directly below the output directory.
-5. Optionally open **Ajustes avanzados** to change the number of simultaneous images or the prompt.
-6. Press **Procesar imágenes**.
+3. Select a shared output directory or check **Save next to each input image**. When checked, each result is saved in its original image's folder, even if the batch contains images from different folders. The shared directory is disabled and the preference is remembered; unchecking restores the previous shared directory.
+4. Choose **GPT Image 2** or **GPT Image 2.5 (Sunburst)** in **Image model**, directly below the output directory.
+5. Optionally open **Advanced settings** to change the number of simultaneous images or the prompt.
+6. Press **Process images**.
 
-The interface uses Spanish labels; the steps above retain the names shown in the application.
+These steps use the labels shown in the English interface. For the Spanish labels, see the [Spanish README](README.es.md).
 
 If results already exist, the application asks once whether they should be skipped or reprocessed. When reprocessing it keeps the previous ones and creates names such as `render_01_humanized_2.png`, `render_01_humanized_3.png`, and so on.
 
@@ -63,7 +72,7 @@ The GPT Image 2.5 option uses the Sunburst variant. Both options edit the comple
 
 The selected model applies to every image in the next batch. The selector is disabled during processing, and the active model appears in the progress details and batch log. The application saves the selection when processing starts or the window closes, and restores it on the next launch.
 
-To compare both models on the same render, finish the first batch, change the model, and process the image again. Choose **Reprocesar y renombrar** when asked about existing results. Previous outputs are preserved; changing models does not automatically reprocess existing images.
+To compare both models on the same render, finish the first batch, change the model, and process the image again. Choose **Reprocess and rename** when asked about existing results. Previous outputs are preserved; changing models does not automatically reprocess existing images.
 
 ## Building the desktop applications
 
@@ -90,6 +99,8 @@ Result: `release/macos/3D Enhancer.app`. The generated application carries no Ap
 
 For `render_01.jpg` the file `render_01_humanized.png` is created. Reprocessed images use numeric suffixes and never overwrite an existing result.
 
+With **Save next to each input image** enabled, existing results are checked in each original image's folder. Skipping or reprocessing and renaming also work in this mode.
+
 ## Recommended settings
 
 - The default value processes up to five simultaneous images. Reduce it if the account hits temporary API limits.
@@ -105,6 +116,8 @@ python -m compileall -q main.py renderhuman tests
 ```
 
 The tests use a fake client and make no external requests. They cover both models, forwarding the selected model to the image API, saving and restoring the selection, and disabling the selector during processing, as well as image handling, credentials, and parallel processing.
+
+Language tests also cover system language detection, regional variants, the English fallback, live switching during processing, the saved preference, and translation of progress, dialogs, and logs without changing user data.
 
 ## Technical notes
 
