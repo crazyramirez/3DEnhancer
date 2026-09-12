@@ -2,39 +2,22 @@ name: Build macOS app
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    tags: ['v*']
-    paths:
-      - '.github/workflows/build-macos.yml'
-      - 'main.py'
-      - 'renderhuman/**'
-      - 'assets/**'
-      - 'tests/**'
-      - 'requirements*.txt'
-      - '3DEnhancer.spec'
-      - 'build_macos.command'
-  pull_request:
-    paths:
-      - '.github/workflows/build-macos.yml'
-      - 'main.py'
-      - 'renderhuman/**'
-      - 'assets/**'
-      - 'tests/**'
-      - 'requirements*.txt'
-      - '3DEnhancer.spec'
-      - 'build_macos.command'
 
 permissions:
   contents: read
 
 concurrency:
-  group: macos-${{ github.workflow }}-${{ github.ref }}
+  group: macos-${{ github.workflow }}-${{ github.ref }}-${{ github.triggering_actor }}
   cancel-in-progress: true
 
 jobs:
   build:
     name: macOS (${{ matrix.arch }})
+    # Check both identities so another collaborator cannot re-run an owner's build.
+    if: >-
+      github.repository == 'crazyramirez/3DEnhancer' &&
+      github.actor == 'crazyramirez' &&
+      github.triggering_actor == 'crazyramirez'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 30
     strategy:
@@ -84,7 +67,7 @@ jobs:
           APP='release/macos/3D Enhancer.app'
           plutil -lint "$APP/Contents/Info.plist"
           test -x "$APP/Contents/MacOS/3D Enhancer"
-          lipo -verify_arch "$EXPECTED_ARCH" "$APP/Contents/MacOS/3D Enhancer"
+          lipo "$APP/Contents/MacOS/3D Enhancer" -verify_arch "$EXPECTED_ARCH"
           python - <<'PY'
           import subprocess
 

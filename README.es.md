@@ -113,7 +113,7 @@ Resultado: `release/macos/3D Enhancer.app`.
 
 ### Descargar la versión para macOS desde GitHub Actions
 
-El [workflow Build macOS app](https://github.com/crazyramirez/3DEnhancer/actions/workflows/build-macos.yml) genera aplicaciones nativas para **Apple Silicon (arm64)** e **Intel (x86_64)** con Python 3.12 en macOS 15. Se ejecuta cuando cambian archivos de la app, las pruebas o la compilación en `main` o en una pull request, al subir una etiqueta `v*`, o manualmente con **Run workflow**.
+El [workflow Build macOS app](https://github.com/crazyramirez/3DEnhancer/actions/workflows/build-macos.yml) genera aplicaciones nativas para **Apple Silicon (arm64)** e **Intel (x86_64)** con Python 3.12 en macOS 15. Se ejecuta exclusivamente de forma manual con **Run workflow**. La compilación exige que tanto quien inició la ejecución original como quien solicita repetirla sean `crazyramirez`, dentro del repositorio `crazyramirez/3DEnhancer`; las solicitudes de otros usuarios omiten la compilación. Esta condición se aplica a esta versión del workflow; los colaboradores que puedan editarlo también pueden modificar la restricción.
 
 1. Abre **Actions → Build macOS app** y selecciona una ejecución completada correctamente, o pulsa **Run workflow** para iniciar una.
 2. En **Artifacts**, descarga `3DEnhancer-macos-arm64.zip` para un Mac con chip Apple de la serie M, o `3DEnhancer-macos-x86_64.zip` para un Mac Intel. Puedes comprobarlo en **Acerca de este Mac**.
