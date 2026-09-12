@@ -49,6 +49,7 @@ from renderhuman.services.credentials import CredentialStore, SecureStorageError
 from renderhuman.services.openai_editor import has_openai_api_key, project_root
 from renderhuman.services.pipeline import PipelineItemResult, RenderPipeline
 from renderhuman.ui.widgets import ImagePreview
+from renderhuman.ui.comparison_viewer import ComparisonViewer
 from renderhuman.ui.worker import ProcessingWorker
 
 
@@ -71,6 +72,7 @@ class MainWindow(QMainWindow):
         self.worker: ProcessingWorker | None = None
         self.processing = False
         self._close_after_cancel = False
+        self._comparison_viewer: ComparisonViewer | None = None
 
         self.setWindowTitle(f"{APP_NAME} · Real People")
         screen = QApplication.primaryScreen()
@@ -340,6 +342,8 @@ class MainWindow(QMainWindow):
         self.preview_tabs.tabBar().setUsesScrollButtons(False)
         self.original_preview = ImagePreview(tr("Selecciona una imagen de la cola"))
         self.result_preview = ImagePreview(tr("El resultado aparecerá al completar la edición"))
+        self.original_preview.activated.connect(self._open_comparison_viewer)
+        self.result_preview.activated.connect(self._open_comparison_viewer)
         self.preview_tabs.addTab(self.original_preview, "Original")
         self.preview_tabs.addTab(self.result_preview, tr("Resultado"))
         right_layout.addWidget(self.preview_tabs, 1)
@@ -432,6 +436,8 @@ class MainWindow(QMainWindow):
         scrollbar.setValue(scrollbar.maximum() if at_bottom else position)
         self.original_preview.retranslate()
         self.result_preview.retranslate()
+        if self._comparison_viewer is not None:
+            self._comparison_viewer.retranslate()
         self._refresh_api_controls()
 
     def _load_settings(self) -> None:
@@ -701,6 +707,27 @@ class MainWindow(QMainWindow):
         else:
             self.result_preview.clear_image()
 
+    def _open_comparison_viewer(self) -> None:
+        if self._comparison_viewer is not None:
+            self._comparison_viewer.raise_()
+            self._comparison_viewer.activateWindow()
+            return
+        source = self.original_preview.path
+        if source is None:
+            row = self._selected_row()
+            if row is None or not 0 <= row < len(self.files):
+                return
+            source = self.files[row]
+        result = self.results.get(self._key(source))
+        viewer = ComparisonViewer(source, result.output_path if result else None, self)
+        self._comparison_viewer = viewer
+        viewer.finished.connect(lambda _code: self._comparison_viewer_closed(viewer))
+        viewer.open()
+
+    def _comparison_viewer_closed(self, viewer: ComparisonViewer) -> None:
+        if self._comparison_viewer is viewer:
+            self._comparison_viewer = None
+
     def _processing_options(self) -> ProcessingOptions:
         return ProcessingOptions(
             parallel_jobs=self.parallel_spin.value(),
@@ -880,6 +907,9 @@ class MainWindow(QMainWindow):
 
     def _on_item_finished(self, row: int, result: PipelineItemResult) -> None:
         self.results[self._key(result.source_path)] = result
+        viewer = self._comparison_viewer
+        if viewer is not None and viewer.source_path == result.source_path and result.output_path:
+            viewer.set_result_path(result.output_path)
         if result.status == "completed":
             status, state = tr("Completada"), "success"
         else:

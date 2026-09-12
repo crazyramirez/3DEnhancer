@@ -14,7 +14,7 @@ from PyQt5.QtCore import QCoreApplication, QSettings
 from PyQt5.QtWidgets import QApplication
 
 from renderhuman.config import DEFAULT_PROMPT, ProcessingOptions
-from renderhuman.i18n import ENGLISH, get_language, install_qt_translations, tr
+from renderhuman.i18n import ENGLISH, apply_language, get_language, install_qt_translations, tr
 from renderhuman.ui.main_window import MainWindow
 from renderhuman.ui.worker import ProcessingWorker
 
@@ -113,6 +113,8 @@ class LocalizedInterfaceTests(unittest.TestCase):
                         window.close()
 
     def test_standard_qt_buttons_are_translated(self) -> None:
+        apply_language("en", self.app)
+        self.addCleanup(lambda: apply_language("system", self.app))
         with patch("renderhuman.i18n.get_language", return_value="es"):
             translator = install_qt_translations(self.app)
             self.assertIsNotNone(translator)

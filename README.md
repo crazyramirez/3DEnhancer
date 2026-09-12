@@ -15,6 +15,7 @@ Python and PyQt5 desktop application that sends complete renders to GPT Image 2 
 - Configurable processing of one to five simultaneous images.
 - Detection of existing results with the option to skip or reprocess them without overwriting files.
 - Per-image status, progress, cancellation, log, and original/result preview.
+- Click a preview to open a comparison viewer with a before/after slider, zoom up to 800%, panning, and full screen.
 - Output directory and persistent settings through `QSettings`.
 
 Each processed image makes an independent API call.
@@ -100,6 +101,23 @@ Result: `release/macos/3D Enhancer.app`. The generated application carries no Ap
 For `render_01.jpg` the file `render_01_humanized.png` is created. Reprocessed images use numeric suffixes and never overwrite an existing result.
 
 With **Save next to each input image** enabled, existing results are checked in each original image's folder. Skipping or reprocessing and renaming also work in this mode.
+
+## Before and after viewer
+
+Click a loaded preview or **Open viewer** to open the comparison above the application. You can also focus the preview with the keyboard and press **Enter** or **Space**. The viewer keeps the original and its result aligned, with **Original**, **Compare**, and **Result** modes.
+
+| Action | Control |
+| --- | --- |
+| Reveal before and after | Drag the divider on the image or the slider below it. |
+| Center the divider | Click **50 / 50**. |
+| Zoom into a detail | Scroll over that point, or use the **+** and **−** buttons. |
+| Pan a zoomed image | Drag the image; over the divider, hold **Space** or use the middle mouse button. |
+| Fit the image to the viewer | Click **Fit** or press **0**. |
+| View at 100% | Click **100%** or press **1**; double-click to toggle between 100% and fit. |
+| Full screen | Click **Full screen** or press **F**. |
+| Exit | **Esc** exits full screen; press it again to close the viewer. **Close** closes it directly. |
+
+If the result is not available yet, you can explore the original. Its comparison appears automatically when processing finishes, without resetting the zoom. The viewer stays on the image you opened while the batch continues with other images. Opening it does not modify files or use the API.
 
 ## Recommended settings
 

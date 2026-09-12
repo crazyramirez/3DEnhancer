@@ -15,6 +15,7 @@ Aplicación de escritorio en Python y PyQt5 que envía renders completos a GPT I
 - Procesado configurable de una a cinco imágenes simultáneas.
 - Detección de resultados existentes con opción de omitirlos o reprocesarlos sin sobrescribir archivos.
 - Estado por imagen, progreso, cancelación, registro y previsualización original/resultado.
+- Visor de comparación al pulsar la previsualización: antes/después con deslizador, zoom hasta el 800%, desplazamiento y pantalla completa.
 - Directorio de salida y ajustes persistentes mediante `QSettings`.
 
 Cada imagen procesada realiza una llamada independiente a la API.
@@ -100,6 +101,23 @@ Resultado: `release/macos/3D Enhancer.app`. La aplicación generada no lleva fir
 Para `render_01.jpg` se crea `render_01_humanized.png`. Los reprocesados utilizan sufijos numéricos y nunca sobrescriben un resultado existente.
 
 Con **Guardar junto a cada imagen de entrada**, los resultados existentes se comprueban en la carpeta de cada original. Las opciones de omitir o reprocesar y renombrar funcionan también en este modo.
+
+## Visor antes y después
+
+Pulsa una previsualización cargada o **Abrir visor** para abrir el comparador sobre la aplicación. También puedes enfocarla con el teclado y pulsar **Intro** o **Espacio**. El visor muestra el original y su resultado alineados, y permite alternar entre **Original**, **Comparar** y **Resultado**.
+
+| Acción | Control |
+| --- | --- |
+| Revelar el antes y el después | Arrastra la división sobre la imagen o el deslizador inferior. |
+| Centrar la división | Pulsa **50 / 50**. |
+| Ampliar un detalle | Usa la rueda sobre ese punto, o los botones **+** y **−**. |
+| Desplazarte por la imagen ampliada | Arrastra la imagen; sobre la división, mantén **Espacio** o usa el botón central del ratón. |
+| Ajustar la imagen al visor | Pulsa **Ajustar** o **0**. |
+| Ver al 100% | Pulsa **100%** o **1**; el doble clic alterna entre 100% y ajustar. |
+| Pantalla completa | Pulsa **Pantalla completa** o **F**. |
+| Salir | **Esc** sale de pantalla completa; vuelve a pulsarlo para cerrar el visor. **Cerrar** lo cierra directamente. |
+
+Si el resultado aún no está disponible, puedes explorar el original. Cuando termina su procesado, la comparación aparece automáticamente sin reiniciar el zoom. El visor permanece en la imagen que abriste aunque el lote continúe con otras imágenes. Abrirlo no modifica archivos ni consume la API.
 
 ## Ajustes recomendados
 

@@ -170,6 +170,111 @@ QLabel#ImagePreview {
     padding: 4px;
 }
 
+QLabel#ImagePreview[interactive="true"]:hover,
+QLabel#ImagePreview[interactive="true"]:focus {
+    border: 1px solid #53B69F;
+}
+
+QDialog#ComparisonViewer {
+    background: #10161D;
+}
+
+QLabel#ViewerEyebrow {
+    color: #73DCC2;
+    font-size: 8pt;
+    font-weight: 700;
+}
+
+QLabel#ViewerFilename {
+    color: #F1F6F8;
+    font-size: 18pt;
+    font-weight: 650;
+}
+
+QLabel#ViewerMuted, QLabel#ViewerHint {
+    color: #8B9BAA;
+    font-size: 9pt;
+}
+
+QLabel#ViewerAccent {
+    color: #80E9CF;
+    font-size: 9pt;
+}
+
+QLabel#ViewerZoom {
+    color: #ECF5F4;
+    font-size: 10pt;
+    font-weight: 650;
+}
+
+QLabel#ViewerNotice {
+    color: #D4C6A4;
+    background: #25251F;
+    border: 1px solid #3B3B2F;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+QFrame#ComparisonFrame {
+    border: 1px solid #30414D;
+    border-radius: 3px;
+    background: #080C11;
+}
+
+QToolButton#ViewerMode {
+    min-width: 78px;
+    padding: 7px 16px;
+    background: #161F29;
+    border-color: #293844;
+    color: #A4B2BE;
+}
+
+QToolButton#ViewerMode:checked {
+    background: #173C34;
+    border-color: #367F6D;
+    color: #9DF2DB;
+}
+
+QToolButton#ViewerMode:hover {
+    border-color: #62AD98;
+}
+
+QToolButton#ViewerMode:disabled {
+    color: #596570;
+    border-color: #26303A;
+    background: #131A22;
+}
+
+QSlider#RevealSlider::groove:horizontal {
+    height: 4px;
+    background: #2B3944;
+    border-radius: 2px;
+}
+
+QSlider#RevealSlider::sub-page:horizontal {
+    background: #49B99E;
+    border-radius: 2px;
+}
+
+QSlider#RevealSlider::handle:horizontal {
+    background: #E9FFF7;
+    border: 3px solid #55C6A9;
+    width: 16px;
+    height: 16px;
+    margin: -9px 0;
+    border-radius: 10px;
+}
+
+QSlider#RevealSlider::handle:horizontal:hover {
+    background: #FFFFFF;
+    border-color: #99FFE0;
+}
+
+QSlider#RevealSlider::handle:horizontal:disabled {
+    background: #596973;
+    border-color: #374A54;
+}
+
 QPushButton, QToolButton {
     background: #202936;
     color: #EAF0F3;
