@@ -6,6 +6,12 @@
 
 Aplicación de escritorio en Python y PyQt5 que envía renders completos a GPT Image 2 o GPT Image 2.5 (Sunburst) para sustituir sus personajes 3D por personas fotográficas, manteniendo la escena y la composición.
 
+## Demo
+
+Una demostración básica en vídeo del funcionamiento de la aplicación y del resultado generado.
+
+[Ver la demo (MP4)](demo_1.mp4)
+
 ## Qué incluye
 
 - Interfaz en español e inglés, con detección del idioma del sistema y selector superior para cambiarlo al vuelo.

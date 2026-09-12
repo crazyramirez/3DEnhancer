@@ -6,6 +6,12 @@
 
 Python and PyQt5 desktop application that sends complete renders to GPT Image 2 or GPT Image 2.5 (Sunburst) to replace their 3D characters with photographic people, preserving the scene and the composition.
 
+## Demo
+
+A basic video demonstration of the application in action and the generated result.
+
+[Watch the demo (MP4)](demo_1.mp4)
+
 ## What it includes
 
 - English and Spanish interface, with system language detection and a selector at the top for switching languages instantly.
