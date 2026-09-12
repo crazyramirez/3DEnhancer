@@ -8,6 +8,7 @@ from PyQt5.QtGui import QBrush, QColor, QDesktopServices, QImageReader
 from PyQt5.QtWidgets import (
     QAbstractItemView,
     QApplication,
+    QComboBox,
     QFileDialog,
     QFrame,
     QGridLayout,
@@ -35,6 +36,8 @@ from PyQt5.QtWidgets import (
 from renderhuman.config import (
     APP_NAME,
     DEFAULT_PROMPT,
+    OPENAI_IMAGE_MODEL,
+    OPENAI_IMAGE_MODELS,
     ProcessingOptions,
     SUPPORTED_IMAGE_EXTENSIONS,
 )
@@ -212,6 +215,15 @@ class MainWindow(QMainWindow):
         output_row.addWidget(self.open_output_button)
         source_layout.addLayout(output_row)
 
+        model_row = QHBoxLayout()
+        model_row.addWidget(QLabel("Modelo de imagen"))
+        self.model_combo = QComboBox()
+        for model_id, label in OPENAI_IMAGE_MODELS.items():
+            self.model_combo.addItem(label, model_id)
+        self.model_combo.setToolTip("Modelo utilizado para editar todas las imágenes del lote.")
+        model_row.addWidget(self.model_combo, 1)
+        source_layout.addLayout(model_row)
+
         self.settings_toggle = QToolButton()
         self.settings_toggle.setText("Ajustes avanzados")
         self.settings_toggle.setCheckable(True)
@@ -235,13 +247,13 @@ class MainWindow(QMainWindow):
         self.parallel_spin.setRange(1, 5)
         self.parallel_spin.setSuffix(" imágenes")
         self.parallel_spin.setToolTip(
-            "Número de renders enviados simultáneamente a GPT Image 2."
+            "Número de renders enviados simultáneamente al modelo seleccionado."
         )
 
         options_grid.addWidget(QLabel("Imágenes simultáneas"), 0, 0)
         options_grid.addWidget(self.parallel_spin, 0, 1)
         processing_note = QLabel(
-            "Cada render se envía completo a GPT Image 2 en una sola llamada. "
+            "Cada render se envía completo al modelo seleccionado en una sola llamada. "
             "No se ejecutan detectores ni se generan máscaras."
         )
         processing_note.setObjectName("Muted")
@@ -250,7 +262,7 @@ class MainWindow(QMainWindow):
         settings_layout.addLayout(options_grid)
 
         prompt_header = QHBoxLayout()
-        prompt_header.addWidget(self._section_label("Prompt para GPT Image 2 · calidad alta"))
+        prompt_header.addWidget(self._section_label("Prompt de edición · calidad alta"))
         prompt_header.addStretch(1)
         reset_prompt_button = QPushButton("Restaurar prompt")
         reset_prompt_button.clicked.connect(lambda: self.prompt_edit.setPlainText(DEFAULT_PROMPT))
@@ -380,11 +392,16 @@ class MainWindow(QMainWindow):
         self.output_edit.setText(str(self.settings.value("output_dir", default_output)))
 
         self.parallel_spin.setValue(int(self.settings.value("parallel_jobs", 5)))
+        model_index = self.model_combo.findData(
+            self.settings.value("image_model", OPENAI_IMAGE_MODEL)
+        )
+        self.model_combo.setCurrentIndex(max(0, model_index))
         self.prompt_edit.setPlainText(str(self.settings.value("prompt", DEFAULT_PROMPT)))
 
     def _save_settings(self) -> None:
         self.settings.setValue("output_dir", self.output_edit.text().strip())
         self.settings.setValue("parallel_jobs", self.parallel_spin.value())
+        self.settings.setValue("image_model", self.model_combo.currentData())
         self.settings.setValue("prompt", self.prompt_edit.toPlainText())
         self.settings.sync()
 
@@ -607,6 +624,7 @@ class MainWindow(QMainWindow):
         return ProcessingOptions(
             parallel_jobs=self.parallel_spin.value(),
             prompt=self.prompt_edit.toPlainText().strip(),
+            image_model=self.model_combo.currentData(),
         )
 
     def _start_processing(self) -> None:
@@ -716,9 +734,10 @@ class MainWindow(QMainWindow):
         self.stage_label.setText("Preparando el lote")
         self.stage_detail.setText(
             f"{len(pending)} imagen(es) en cola · hasta "
-            f"{options.parallel_jobs} simultáneas"
+            f"{options.parallel_jobs} simultáneas · {OPENAI_IMAGE_MODELS[options.image_model]}"
         )
         self.log_view.clear()
+        self._append_log(f"Modelo del lote: {options.image_model} · calidad alta")
 
         thread = QThread(self)
         worker = ProcessingWorker(
@@ -751,6 +770,7 @@ class MainWindow(QMainWindow):
         self.add_folder_button.setEnabled(enabled)
         self.output_button.setEnabled(enabled)
         self.output_edit.setEnabled(enabled)
+        self.model_combo.setEnabled(enabled)
         self.settings_toggle.setEnabled(enabled)
         self.settings_panel.setEnabled(enabled)
         self.file_table.setDragEnabled(False)

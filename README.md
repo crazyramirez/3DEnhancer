@@ -4,12 +4,12 @@
 
 *Read this in [Spanish / Español](README.es.md).*
 
-Python and PyQt5 desktop application that sends complete renders to GPT Image 2 to replace their 3D characters with photographic people, preserving the scene and the composition.
+Python and PyQt5 desktop application that sends complete renders to GPT Image 2 or GPT Image 2.5 (Sunburst) to replace their 3D characters with photographic people, preserving the scene and the composition.
 
 ## What it includes
 
 - Multiple selection of images, folders, and drag and drop.
-- A single processing method: full-image editing with `gpt-image-2` and `quality="high"`.
+- Full-image editing with a model selector: `gpt-image-2` or `gpt-image-2.5-sunburst`, both with `quality="high"`. The selection is remembered; GPT Image 2 remains the default.
 - Editable restrictive prompt to preserve the number, position, scale, pose, and clothing of each character, as well as architecture, text, lighting, and camera.
 - Configurable processing of one to five simultaneous images.
 - Detection of existing results with the option to skip or reprocess them without overwriting files.
@@ -39,6 +39,32 @@ python main.py
 
 On Windows you can also open `run_app.bat`.
 
+If you use the packaged Windows version, open `release/windows/3D Enhancer.exe`.
+
+1. Enter the OpenAI key and press **Guardar API key**. This is only necessary the first time or when changing it.
+2. Add images, a complete folder, or drag the renders onto the window.
+3. Select the output directory.
+4. Choose **GPT Image 2** or **GPT Image 2.5 (Sunburst)** in **Modelo de imagen**, directly below the output directory.
+5. Optionally open **Ajustes avanzados** to change the number of simultaneous images or the prompt.
+6. Press **Procesar imágenes**.
+
+The interface uses Spanish labels; the steps above retain the names shown in the application.
+
+If results already exist, the application asks once whether they should be skipped or reprocessed. When reprocessing it keeps the previous ones and creates names such as `render_01_humanized_2.png`, `render_01_humanized_3.png`, and so on.
+
+## Choosing the image model
+
+| Option in the application | API model ID | Default |
+| --- | --- | --- |
+| GPT Image 2 | `gpt-image-2` | Yes |
+| GPT Image 2.5 (Sunburst) | `gpt-image-2.5-sunburst` | No |
+
+The GPT Image 2.5 option uses the Sunburst variant. Both options edit the complete render with the same prompt and high quality (`quality="high"`).
+
+The selected model applies to every image in the next batch. The selector is disabled during processing, and the active model appears in the progress details and batch log. The application saves the selection when processing starts or the window closes, and restores it on the next launch.
+
+To compare both models on the same render, finish the first batch, change the model, and process the image again. Choose **Reprocesar y renombrar** when asked about existing results. Previous outputs are preserved; changing models does not automatically reprocess existing images.
+
 ## Building the desktop applications
 
 The icon and the PyInstaller configuration are already included. Binaries must be built on their own operating system; PyInstaller cannot reliably create a macOS application from Windows.
@@ -60,14 +86,6 @@ chmod +x build_macos.command
 
 Result: `release/macos/3D Enhancer.app`. The generated application carries no Apple signature; to distribute it outside your own machine it must be signed and, normally, notarized with an Apple Developer account.
 
-1. Enter the OpenAI key and press **Guardar API key**. This is only necessary the first time or when changing it.
-2. Add images, a complete folder, or drag the renders onto the window.
-3. Select the output directory. The application will remember it.
-4. Optionally open **Ajustes avanzados** to change the number of simultaneous images or the prompt.
-5. Press **Procesar imágenes**.
-
-If results already exist, the application asks once whether they should be skipped or reprocessed. When reprocessing it keeps the previous ones and creates names such as `render_01_humanized_2.png`, `render_01_humanized_3.png`, and so on.
-
 ## Generated files
 
 For `render_01.jpg` the file `render_01_humanized.png` is created. Reprocessed images use numeric suffixes and never overwrite an existing result.
@@ -86,7 +104,7 @@ python -m unittest discover -s tests -v
 python -m compileall -q main.py renderhuman tests
 ```
 
-The tests use a fake client and make no external requests.
+The tests use a fake client and make no external requests. They cover both models, forwarding the selected model to the image API, saving and restoring the selection, and disabling the selector during processing, as well as image handling, credentials, and parallel processing.
 
 ## Technical notes
 

@@ -9,7 +9,7 @@ from types import SimpleNamespace
 
 from PIL import Image
 
-from renderhuman.config import OPENAI_IMAGE_MODEL, ProcessingOptions
+from renderhuman.config import OPENAI_IMAGE_MODEL, OPENAI_IMAGE_MODELS, ProcessingOptions
 from renderhuman.services.openai_editor import OpenAIImageEditor
 from renderhuman.services.pipeline import RenderPipeline
 
@@ -18,10 +18,12 @@ class FakeEditor:
     def __init__(self) -> None:
         self.calls = 0
         self.last_prompt = ""
+        self.last_model = ""
 
-    def edit(self, source_path: Path, prompt: str, size: str) -> bytes:
+    def edit(self, source_path: Path, prompt: str, size: str, *, model: str) -> bytes:
         self.calls += 1
         self.last_prompt = prompt
+        self.last_model = model
         with Image.open(source_path) as source:
             assert source.format == "PNG"
             assert size == f"{source.width}x{source.height}"
@@ -44,6 +46,7 @@ class PipelineTests(unittest.TestCase):
 
             self.assertEqual(result.status, "completed")
             self.assertEqual(editor.calls, 1)
+            self.assertEqual(editor.last_model, OPENAI_IMAGE_MODEL)
             self.assertIn("ONLY ALLOWED CHANGE", editor.last_prompt)
             self.assertIn("never enlarge a head", editor.last_prompt)
             self.assertIn("IMMUTABLE SCENE", editor.last_prompt)
@@ -51,6 +54,44 @@ class PipelineTests(unittest.TestCase):
             with Image.open(result.output_path) as output:
                 self.assertEqual(output.size, (1200, 700))
                 self.assertEqual(output.getpixel((10, 10)), (20, 40, 230))
+
+    def test_selected_model_reaches_api_and_progress(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "render.png"
+            Image.new("RGB", (1200, 700), "white").save(source)
+            buffer = BytesIO()
+            Image.new("RGB", (1536, 1024), "blue").save(buffer, format="PNG")
+            payload = base64.b64encode(buffer.getvalue()).decode("ascii")
+            from unittest.mock import Mock
+
+            for model, label in OPENAI_IMAGE_MODELS.items():
+                with self.subTest(model=model):
+                    client = Mock()
+                    client.images.edit.return_value = SimpleNamespace(
+                        data=[SimpleNamespace(b64_json=payload)]
+                    )
+                    pipeline = RenderPipeline(
+                        ProcessingOptions(image_model=model),
+                        editor=OpenAIImageEditor(client=client),
+                    )
+                    stages = []
+                    result = pipeline.process_one(
+                        source, root / "out",
+                        stage_callback=lambda *stage: stages.append(stage),
+                    )
+                    arguments = client.images.edit.call_args.kwargs
+                    self.assertEqual(arguments["model"], model)
+                    self.assertEqual(arguments["quality"], "high")
+                    self.assertEqual(arguments["output_format"], "png")
+                    self.assertTrue(any(label in detail for _, detail, _ in stages))
+                    self.assertEqual(result.status, "completed")
+                    with Image.open(result.output_path) as output:
+                        self.assertEqual(output.size, (1200, 700))
+
+    def test_unsupported_model_is_rejected_before_processing(self) -> None:
+        with self.assertRaisesRegex(ValueError, "modelo de imagen compatible"):
+            RenderPipeline(ProcessingOptions(image_model="unknown-model"))
 
 
 class FakeImagesEndpoint:

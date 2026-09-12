@@ -5,6 +5,10 @@ from dataclasses import dataclass
 
 APP_NAME = "3D Enhancer"
 OPENAI_IMAGE_MODEL = "gpt-image-2"
+OPENAI_IMAGE_MODELS = {
+    "gpt-image-2": "GPT Image 2",
+    "gpt-image-2.5-sunburst": "GPT Image 2.5 (Sunburst)",
+}
 
 SUPPORTED_IMAGE_EXTENSIONS = {
     ".png",
@@ -37,8 +41,11 @@ Return the same complete composition. The result should look like the original r
 class ProcessingOptions:
     parallel_jobs: int = 5
     prompt: str = DEFAULT_PROMPT
+    image_model: str = OPENAI_IMAGE_MODEL
 
     def validate(self) -> None:
+        if self.image_model not in OPENAI_IMAGE_MODELS:
+            raise ValueError("Selecciona un modelo de imagen compatible.")
         if not self.prompt.strip():
             raise ValueError("El prompt no puede estar vacío.")
         if not 1 <= self.parallel_jobs <= 5:

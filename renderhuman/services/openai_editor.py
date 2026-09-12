@@ -58,11 +58,13 @@ class OpenAIImageEditor:
         source_path: Path,
         prompt: str,
         size: str,
+        *,
+        model: str = OPENAI_IMAGE_MODEL,
     ) -> bytes:
         client = self._client_or_create()
         with source_path.open("rb") as source_file:
             response = client.images.edit(
-                model=OPENAI_IMAGE_MODEL,
+                model=model,
                 image=source_file,
                 prompt=prompt,
                 quality="high",
@@ -71,8 +73,8 @@ class OpenAIImageEditor:
             )
 
         if not response.data:
-            raise RuntimeError("GPT Image 2 no devolvió ninguna imagen.")
+            raise RuntimeError(f"{model} no devolvió ninguna imagen.")
         encoded = response.data[0].b64_json
         if not encoded:
-            raise RuntimeError("GPT Image 2 devolvió una respuesta sin datos de imagen.")
+            raise RuntimeError(f"{model} devolvió una respuesta sin datos de imagen.")
         return base64.b64decode(encoded)

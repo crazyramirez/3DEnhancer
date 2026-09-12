@@ -9,7 +9,7 @@ from typing import Callable, Literal
 
 from PIL import Image
 
-from renderhuman.config import ProcessingOptions
+from renderhuman.config import OPENAI_IMAGE_MODELS, ProcessingOptions
 from renderhuman.core.images import (
     CanvasTransform,
     load_render_image,
@@ -72,13 +72,15 @@ class RenderPipeline:
             self._notify(
                 stage_callback,
                 "Editando imagen completa",
-                f"GPT Image 2 · calidad alta · lienzo {transform.api_size}",
+                f"{OPENAI_IMAGE_MODELS[self.options.image_model]} · calidad alta · "
+                f"lienzo {transform.api_size}",
                 4,
             )
             generated_bytes = self.editor.edit(
                 source_path,
                 self.options.prompt,
                 transform.api_size,
+                model=self.options.image_model,
             )
         with Image.open(BytesIO(generated_bytes)) as generated_file:
             return transform.restore_output(generated_file)
